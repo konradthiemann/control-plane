@@ -28,3 +28,22 @@ jobs:
       - run: php bin/console lint:twig templates
 
       - run: vendor/bin/phpunit
+
+  deploy:
+    name: Deploy to Railway
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy (nur wenn RAILWAY_TOKEN gesetzt ist)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::notice::RAILWAY_TOKEN nicht gesetzt — Auto-Deploy übersprungen. Zum Aktivieren einen Railway-Projekt-Token (Environment: production) als GitHub-Secret RAILWAY_TOKEN hinterlegen."
+            exit 0
+          fi
+          npm i -g @railway/cli
+          railway up --service control-plane --detach
