@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Control Plane{% endblock %}
+
+{% block body %}
+    <main style="max-width: 40rem; margin: 4rem auto; font-family: sans-serif;">
+        <h1>Control Plane</h1>
+        <p>Angemeldet als {{ user.email }}.</p>
+        <p>Noch kein Dashboard-Inhalt — erste vertikale Slice (Issue-Dashboard) folgt.</p>
+        <a href="{{ path('app_logout') }}">Abmelden</a>
+    </main>
+{% endblock %}
