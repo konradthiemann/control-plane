@@ -6,7 +6,54 @@
     <main style="max-width: 40rem; margin: 4rem auto; font-family: sans-serif;">
         <h1>Control Plane</h1>
         <p>Angemeldet als {{ user.email }}.</p>
-        <p>Noch kein Dashboard-Inhalt — erste vertikale Slice (Issue-Dashboard) folgt.</p>
-        <a href="{{ path('app_logout') }}">Abmelden</a>
+
+        <h2>Knips</h2>
+        {% if knipsAnalytics is null %}
+            <p>Knips aktuell nicht erreichbar.</p>
+        {% else %}
+            <ul>
+                {% for type, count in knipsAnalytics.byType %}
+                    <li>{{ type }}: {{ count }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Uploads nach Kategorie</h3>
+            <table>
+                <tbody>
+                {% for row in knipsAnalytics.uploadsByCategory %}
+                    <tr>
+                        <td>{{ row.cat }}</td>
+                        <td>{{ row.count }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Übersprungen nach Kategorie</h3>
+            <table>
+                <tbody>
+                {% for row in knipsAnalytics.skipsByCategory %}
+                    <tr>
+                        <td>{{ row.cat }}</td>
+                        <td>{{ row.count }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Geräte</h3>
+            <table>
+                <tbody>
+                {% for row in knipsAnalytics.devices %}
+                    <tr>
+                        <td>{{ row.device }}</td>
+                        <td>{{ row.count }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <p><a href="{{ path('app_logout') }}">Abmelden</a></p>
     </main>
 {% endblock %}
