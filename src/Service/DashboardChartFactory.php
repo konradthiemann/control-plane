@@ -184,6 +184,30 @@ class DashboardChartFactory
     }
 
     /**
+     * @param array{total: int, categorized: int, taxRelevant: int, fromReceiptScan: int} $transactions
+     */
+    public function doeweDataQualityChart(array $transactions): Chart
+    {
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_BAR);
+        $chart->setData([
+            'labels' => ['Kategorisiert', 'Steuerrelevant', 'Per Beleg-Scan'],
+            'datasets' => [[
+                'label' => 'Transaktionen',
+                'backgroundColor' => self::BLUE,
+                'borderRadius' => 4,
+                'data' => [
+                    $transactions['categorized'],
+                    $transactions['taxRelevant'],
+                    $transactions['fromReceiptScan'],
+                ],
+            ]],
+        ]);
+        $chart->setOptions($this->barOptions(horizontal: true, legend: false));
+
+        return $chart;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function barOptions(bool $horizontal, bool $legend, bool $stacked = false): array

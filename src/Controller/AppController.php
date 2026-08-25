@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Config\AppRegistry;
 use App\Service\DashboardChartFactory;
+use App\Service\DoeweAnalyticsClient;
 use App\Service\KnipsAnalyticsClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,8 +13,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class AppController extends AbstractController
 {
     #[Route('/apps/{slug}', name: 'app_show')]
-    public function show(string $slug, KnipsAnalyticsClient $knipsAnalyticsClient, DashboardChartFactory $charts): Response
-    {
+    public function show(
+        string $slug,
+        KnipsAnalyticsClient $knipsAnalyticsClient,
+        DoeweAnalyticsClient $doeweAnalyticsClient,
+        DashboardChartFactory $charts,
+    ): Response {
         $appEntry = AppRegistry::findBySlug($slug);
         if (null === $appEntry) {
             throw $this->createNotFoundException("Unbekannte App \"{$slug}\".");
@@ -46,6 +51,15 @@ class AppController extends AbstractController
             $knipsStorage = $knipsAnalyticsClient->fetchStorage();
         }
 
+        $doeweStats = null;
+        $doeweChart = null;
+        if ($appEntry->hasDoeweAnalytics) {
+            $doeweStats = $doeweAnalyticsClient->fetchStats();
+            if (null !== $doeweStats) {
+                $doeweChart = $charts->doeweDataQualityChart($doeweStats['transactions']);
+            }
+        }
+
         return $this->render('app/show.html.twig', [
             'apps' => AppRegistry::all(),
             'appEntry' => $appEntry,
@@ -53,6 +67,8 @@ class AppController extends AbstractController
             'knipsStats' => $knipsStats,
             'knipsStorage' => $knipsStorage,
             'knipsCharts' => $knipsCharts,
+            'doeweStats' => $doeweStats,
+            'doeweChart' => $doeweChart,
         ]);
     }
 }

@@ -105,6 +105,57 @@
         {% endif %}
     {% endif %}
 
+    {% if appEntry.hasDoeweAnalytics %}
+        <div class="card">
+            <h2>Kennzahlen</h2>
+
+            {% if doeweStats is null %}
+                <p class="empty-state">Doewe aktuell nicht erreichbar.</p>
+            {% else %}
+                <div class="kpi-row">
+                    <div class="kpi-tile">
+                        <div class="value">{{ doeweStats.households.total }}</div>
+                        <div class="label" data-tooltip="Alle Haushalte, unabhängig ob aktiv genutzt.">Haushalte</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ doeweStats.households.multiMember }}</div>
+                        <div class="label" data-tooltip="Haushalte mit mehr als einem Mitglied — nutzt das Sharing-Feature wirklich jemand?">davon Multi-Member</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ doeweStats.users.total }}</div>
+                        <div class="label" data-tooltip="Registrierte Nutzer über alle Haushalte hinweg.">Nutzer</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ doeweStats.accounts.total }}</div>
+                        <div class="label" data-tooltip="Konten über alle Haushalte hinweg.">Konten</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ doeweStats.transactions.total }}</div>
+                        <div class="label" data-tooltip="Alle erfassten Transaktionen (ohne soft-gelöschte).">Transaktionen</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{% set mb = doeweStats.attachments.totalBytes / 1024 / 1024 %}{% if mb > 1024 %}{{ (mb / 1024)|number_format(2, ',', '.') }} GB{% else %}{{ mb|number_format(1, ',', '.') }} MB{% endif %}</div>
+                        <div class="label" data-tooltip="Speicherplatz aller Beleg-Anhänge ({{ doeweStats.attachments.count }} Dateien).">Anhänge-Speicher</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ doeweStats.recurringTransactions.active }}</div>
+                        <div class="label" data-tooltip="Aktive wiederkehrende Buchungen (nicht soft-gelöscht).">Wiederkehrend</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ doeweStats.budgets.total }}</div>
+                        <div class="label" data-tooltip="Kategorie-Budgets + Sparziele zusammen ({{ doeweStats.budgets.completed }} abgeschlossen). Die App selbst trennt beide Typen nicht sauber in der Datenbank.">Budgets</div>
+                    </div>
+                </div>
+
+                <h3>Transaktions-Datenqualität</h3>
+                <p class="meta" style="margin-top: -0.5rem;">Von {{ doeweStats.transactions.total }} Transaktionen insgesamt.</p>
+                <div class="chart-box">
+                    {{ render_chart(doeweChart) }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
     <div class="card">
         <h2>Offene Issues</h2>
         {{ component('IssueBoard', {repoFilter: appEntry.githubRepo}) }}
