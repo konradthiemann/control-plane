@@ -9,6 +9,7 @@ final class AppEntry
         public readonly string $displayName,
         public readonly string $githubRepo,
         public readonly bool $hasKnipsAnalytics = false,
+        public readonly bool $hasDoeweAnalytics = false,
     ) {
     }
 }

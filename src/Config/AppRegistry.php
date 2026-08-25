@@ -14,7 +14,7 @@ final class AppRegistry
     public static function all(): array
     {
         return [
-            new AppEntry('doewe', 'Doewe', 'Doewe'),
+            new AppEntry('doewe', 'Doewe', 'Doewe', hasDoeweAnalytics: true),
             new AppEntry('pokekon', 'Pokekon', 'Pokekon'),
             new AppEntry('prized', 'Prized', 'Pok-mon-TCG-Prize-Checker'),
             new AppEntry('knips', 'Knips', 'Foto-Challenge', hasKnipsAnalytics: true),
