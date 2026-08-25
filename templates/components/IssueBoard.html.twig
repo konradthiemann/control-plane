@@ -13,12 +13,17 @@
     {% if this.issues is empty %}
         <p class="empty-state">Keine offenen Issues.</p>
     {% else %}
+        {% set statusTooltips = {
+            'new': 'Noch nicht angesehen.',
+            'addressing': 'Wird gerade bearbeitet.',
+            'dismissed': 'Als nicht relevant markiert — bleibt auf GitHub weiterhin offen.',
+        } %}
         <table>
             <thead>
                 <tr>
                     <th>Repo</th>
                     <th>Issue</th>
-                    <th>Status</th>
+                    <th data-tooltip="Lokaler Triage-Status — beeinflusst das GitHub-Issue selbst nicht.">Status</th>
                     <th>Aktion</th>
                 </tr>
             </thead>
@@ -27,7 +32,7 @@
                     <tr>
                         <td>{{ issue.repo }}</td>
                         <td><a href="{{ issue.url }}" target="_blank" rel="noopener">#{{ issue.number }} {{ issue.title }}</a></td>
-                        <td><span class="badge badge-{{ issue.triageStatus.value }}">{{ issue.triageStatus.value }}</span></td>
+                        <td><span class="badge badge-{{ issue.triageStatus.value }}" data-tooltip="{{ statusTooltips[issue.triageStatus.value] }}">{{ issue.triageStatus.value }}</span></td>
                         <td class="actions">
                             {% if issue.triageStatus.value != 'addressing' %}
                                 <button {{ live_action('setStatus', {issueId: issue.id, status: 'addressing'}) }}>Angehen</button>

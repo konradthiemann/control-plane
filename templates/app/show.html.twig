@@ -20,19 +20,19 @@
                 <div class="kpi-row">
                     <div class="kpi-tile">
                         <div class="value">{{ knipsStats.totals.events }}</div>
-                        <div class="label">Events</div>
+                        <div class="label" data-tooltip="Alle jemals angelegten Events, inkl. abgelaufener (Retention 30 Tage).">Events</div>
                     </div>
                     <div class="kpi-tile">
                         <div class="value">{{ knipsStats.totals.guests }}</div>
-                        <div class="label">Gäste gesamt</div>
+                        <div class="label" data-tooltip="Summe aller Gäste über alle Events hinweg.">Gäste gesamt</div>
                     </div>
                     <div class="kpi-tile">
                         <div class="value">{{ knipsStats.totals.photos }}</div>
-                        <div class="label">Fotos gesamt</div>
+                        <div class="label" data-tooltip="Summe aller hochgeladenen Fotos über alle Events hinweg.">Fotos gesamt</div>
                     </div>
                     <div class="kpi-tile">
                         <div class="value">{{ (knipsStats.totals.revenueCents / 100)|number_format(2, ',', '.') }} €</div>
-                        <div class="label">Umsatz</div>
+                        <div class="label" data-tooltip="Einmalpreis je Event nach gewähltem Preis-Tier, § 19 UStG (keine USt.).">Umsatz</div>
                     </div>
                 </div>
 
@@ -66,12 +66,12 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Limit</th>
-                                <th>Gäste</th>
-                                <th>Auslastung</th>
-                                <th>Fotos</th>
-                                <th>Preis</th>
-                                <th>Status</th>
+                                <th data-tooltip="Gekauftes Gäste-Limit (Preis-Tier) beim Anlegen des Events.">Limit</th>
+                                <th data-tooltip="Tatsächlich beigetretene Gäste.">Gäste</th>
+                                <th data-tooltip="Gäste im Verhältnis zum gekauften Limit (Gäste ÷ Limit).">Auslastung</th>
+                                <th data-tooltip="Hochgeladene Fotos in diesem Event.">Fotos</th>
+                                <th data-tooltip="Einmalpreis für dieses Event nach Preis-Tier.">Preis</th>
+                                <th data-tooltip="Aktiv = Event noch nicht abgelaufen (Retention 30 Tage).">Status</th>
                             </tr>
                         </thead>
                         <tbody>
