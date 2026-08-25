@@ -48,4 +48,29 @@ class KnipsAnalyticsClientTest extends TestCase
 
         self::assertNull($client->fetchAnalytics());
     }
+
+    public function testFetchStatsAuthenticatesThenReturnsDecodedPayload(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url) {
+            if (str_ends_with($url, '/api/admin/auth')) {
+                return new MockResponse('{}', ['response_headers' => ['set-cookie' => 'fca=session-token; Path=/; HttpOnly']]);
+            }
+
+            return new MockResponse(json_encode([
+                'totals' => ['events' => 1, 'guests' => 30, 'photos' => 67, 'revenueCents' => 0],
+                'tierCounts' => ['3' => 0, '5' => 1],
+                'days' => [['date' => '2026-08-22', 'events' => 1, 'guests' => 30, 'photos' => 67]],
+                'events' => [['id' => 'party', 'name' => 'Annette & Björn', 'guestLimit' => 5, 'guestCount' => 30, 'photoCount' => 67, 'priceCents' => 99, 'active' => true]],
+            ]));
+        });
+
+        $client = new KnipsAnalyticsClient($httpClient, 'https://knips.example.test', 'secret-token');
+
+        $result = $client->fetchStats();
+
+        self::assertSame(1, $result['totals']['events']);
+        self::assertSame(67, $result['totals']['photos']);
+        self::assertCount(1, $result['days']);
+        self::assertSame('Annette & Björn', $result['events'][0]['name']);
+    }
 }

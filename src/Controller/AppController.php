@@ -21,6 +21,7 @@ class AppController extends AbstractController
 
         $knipsAnalytics = null;
         $knipsCharts = null;
+        $knipsStats = null;
         if ($appEntry->hasKnipsAnalytics) {
             $knipsAnalytics = $knipsAnalyticsClient->fetchAnalytics();
             if (null !== $knipsAnalytics) {
@@ -31,12 +32,22 @@ class AppController extends AbstractController
                     'devices' => $charts->knipsDevicesChart($knipsAnalytics['devices'] ?? []),
                 ];
             }
+
+            $knipsStats = $knipsAnalyticsClient->fetchStats();
+            if (null !== $knipsStats) {
+                $days = $knipsStats['days'] ?? [];
+                $knipsCharts['photosPerDay'] = $charts->knipsDailySeriesChart($days, 'photos', 'Fotos/Tag');
+                $knipsCharts['guestsPerDay'] = $charts->knipsDailySeriesChart($days, 'guests', 'Gäste/Tag');
+                $knipsCharts['eventsPerDay'] = $charts->knipsDailySeriesChart($days, 'events', 'Events/Tag');
+                $knipsCharts['tiers'] = $charts->knipsTierChart($knipsStats['tierCounts'] ?? []);
+            }
         }
 
         return $this->render('app/show.html.twig', [
             'apps' => AppRegistry::all(),
             'appEntry' => $appEntry,
             'knipsAnalytics' => $knipsAnalytics,
+            'knipsStats' => $knipsStats,
             'knipsCharts' => $knipsCharts,
         ]);
     }
