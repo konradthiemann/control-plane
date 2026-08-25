@@ -120,6 +120,70 @@ class DashboardChartFactory
     }
 
     /**
+     * @param list<array{date: string, events: int, guests: int, photos: int}> $days
+     */
+    public function knipsDailySeriesChart(array $days, string $key, string $label): Chart
+    {
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_LINE);
+        $chart->setData([
+            'labels' => array_column($days, 'date'),
+            'datasets' => [[
+                'label' => $label,
+                'borderColor' => self::BLUE,
+                'backgroundColor' => self::BLUE,
+                'tension' => 0.25,
+                'pointRadius' => 2,
+                'data' => array_map(static fn (array $day) => $day[$key] ?? 0, $days),
+            ]],
+        ]);
+        $chart->setOptions([
+            'responsive' => true,
+            'maintainAspectRatio' => false,
+            'plugins' => [
+                'legend' => ['display' => false],
+                'tooltip' => ['mode' => 'index', 'intersect' => false],
+            ],
+            'scales' => [
+                'y' => [
+                    'beginAtZero' => true,
+                    'ticks' => ['color' => self::MUTED, 'precision' => 0],
+                    'grid' => ['color' => self::GRID],
+                ],
+                'x' => [
+                    'ticks' => ['color' => self::MUTED, 'maxRotation' => 0, 'autoSkip' => true, 'maxTicksLimit' => 8],
+                    'grid' => ['display' => false],
+                ],
+            ],
+        ]);
+
+        return $chart;
+    }
+
+    /**
+     * @param array<string, int> $tierCounts guest-limit label ("3", "5", …) => number of events
+     */
+    public function knipsTierChart(array $tierCounts): Chart
+    {
+        ksort($tierCounts, SORT_NUMERIC);
+
+        $labels = array_map(static fn (string $tier) => "≤{$tier} Gäste", array_keys($tierCounts));
+
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_BAR);
+        $chart->setData([
+            'labels' => $labels,
+            'datasets' => [[
+                'label' => 'Events',
+                'backgroundColor' => self::BLUE,
+                'borderRadius' => 4,
+                'data' => array_values($tierCounts),
+            ]],
+        ]);
+        $chart->setOptions($this->barOptions(horizontal: true, legend: false));
+
+        return $chart;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function barOptions(bool $horizontal, bool $legend, bool $stacked = false): array

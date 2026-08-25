@@ -37,6 +37,23 @@ class KnipsAnalyticsClient
         }
     }
 
+    /**
+     * @return array<string, mixed>|null null if Knips is unreachable or auth fails
+     */
+    public function fetchStats(): ?array
+    {
+        try {
+            $sessionCookie = $this->authenticate();
+            $response = $this->httpClient->request('GET', $this->baseUrl.'/api/admin/stats', [
+                'headers' => ['Cookie' => $sessionCookie],
+            ]);
+
+            return $response->toArray();
+        } catch (ExceptionInterface) {
+            return null;
+        }
+    }
+
     private function authenticate(): string
     {
         $response = $this->httpClient->request('POST', $this->baseUrl.'/api/admin/auth', [

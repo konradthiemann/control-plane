@@ -11,33 +11,112 @@
     </div>
 
     {% if appEntry.hasKnipsAnalytics %}
-        <div class="card">
-            <h2>Analytics</h2>
-
-            {% if knipsAnalytics is null %}
+        {% if knipsStats is null and knipsAnalytics is null %}
+            <div class="card">
                 <p class="empty-state">Knips aktuell nicht erreichbar.</p>
-            {% else %}
-                <h3>Funnel</h3>
-                <div class="chart-box">
-                    {{ render_chart(knipsCharts.funnel) }}
+            </div>
+        {% else %}
+            {% if knipsStats %}
+                <div class="kpi-row">
+                    <div class="kpi-tile">
+                        <div class="value">{{ knipsStats.totals.events }}</div>
+                        <div class="label">Events</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ knipsStats.totals.guests }}</div>
+                        <div class="label">Gäste gesamt</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ knipsStats.totals.photos }}</div>
+                        <div class="label">Fotos gesamt</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ (knipsStats.totals.revenueCents / 100)|number_format(2, ',', '.') }} €</div>
+                        <div class="label">Umsatz</div>
+                    </div>
                 </div>
 
-                <h3>Geräte</h3>
-                <div class="chart-box chart-box--short">
-                    {{ render_chart(knipsCharts.devices) }}
+                <div class="card">
+                    <h2>Verlauf (30 Tage)</h2>
+                    <h3>Fotos pro Tag</h3>
+                    <div class="chart-box">
+                        {{ render_chart(knipsCharts.photosPerDay) }}
+                    </div>
+                    <h3>Gäste pro Tag</h3>
+                    <div class="chart-box chart-box--short">
+                        {{ render_chart(knipsCharts.guestsPerDay) }}
+                    </div>
+                    <h3>Events pro Tag</h3>
+                    <div class="chart-box chart-box--short">
+                        {{ render_chart(knipsCharts.eventsPerDay) }}
+                    </div>
                 </div>
 
-                <h3>Uploads nach Kategorie</h3>
-                <div class="chart-box">
-                    {{ render_chart(knipsCharts.uploads) }}
+                <div class="card">
+                    <h2>Preis-Tiers</h2>
+                    <p class="meta" style="margin-top: -0.5rem;">Welches Guest-Limit beim Anlegen eines Events gewählt wurde.</p>
+                    <div class="chart-box">
+                        {{ render_chart(knipsCharts.tiers) }}
+                    </div>
                 </div>
 
-                <h3>Übersprungen nach Kategorie</h3>
-                <div class="chart-box">
-                    {{ render_chart(knipsCharts.skips) }}
+                <div class="card">
+                    <h2>Events</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Limit</th>
+                                <th>Gäste</th>
+                                <th>Auslastung</th>
+                                <th>Fotos</th>
+                                <th>Preis</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in knipsStats.events %}
+                                <tr>
+                                    <td>{{ event.name }}</td>
+                                    <td>{{ event.guestLimit }}</td>
+                                    <td>{{ event.guestCount }}</td>
+                                    <td>{{ event.guestLimit > 0 ? ((event.guestCount / event.guestLimit * 100)|round) ~ ' %' : '—' }}</td>
+                                    <td>{{ event.photoCount }}</td>
+                                    <td>{{ (event.priceCents / 100)|number_format(2, ',', '.') }} €</td>
+                                    <td><span class="badge {{ event.active ? 'badge-addressing' : 'badge-dismissed' }}">{{ event.active ? 'aktiv' : 'beendet' }}</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             {% endif %}
-        </div>
+
+            {% if knipsAnalytics %}
+                <div class="card">
+                    <h2>Analytics</h2>
+
+                    <h3>Funnel</h3>
+                    <div class="chart-box">
+                        {{ render_chart(knipsCharts.funnel) }}
+                    </div>
+
+                    <h3>Geräte</h3>
+                    <div class="chart-box chart-box--short">
+                        {{ render_chart(knipsCharts.devices) }}
+                    </div>
+
+                    <h3>Uploads nach Kategorie</h3>
+                    <div class="chart-box">
+                        {{ render_chart(knipsCharts.uploads) }}
+                    </div>
+
+                    <h3>Übersprungen nach Kategorie</h3>
+                    <div class="chart-box">
+                        {{ render_chart(knipsCharts.skips) }}
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
     {% endif %}
 
     <div class="card">
