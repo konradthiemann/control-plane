@@ -10,15 +10,15 @@
     <div class="kpi-row">
         <div class="kpi-tile">
             <div class="value">{{ totalOpenIssues }}</div>
-            <div class="label">Offene Issues gesamt</div>
+            <div class="label" data-tooltip="Alle offenen GitHub-Issues über alle Apps hinweg, unabhängig vom Triage-Status.">Offene Issues gesamt</div>
         </div>
         <div class="kpi-tile">
             <div class="value">{{ apps|length }}</div>
-            <div class="label">Apps im Blick</div>
+            <div class="label" data-tooltip="Workspace-Apps, die im Control Plane erfasst sind.">Apps im Blick</div>
         </div>
         <div class="kpi-tile">
             <div class="value">{% if lastSyncedAt %}{{ lastSyncedAt|date('d.m. H:i') }}{% else %}—{% endif %}</div>
-            <div class="label">Letzter Issue-Sync</div>
+            <div class="label" data-tooltip="Zeitpunkt des letzten 'Jetzt synchronisieren'-Klicks auf einer beliebigen App-Seite.">Letzter Issue-Sync</div>
         </div>
     </div>
 
