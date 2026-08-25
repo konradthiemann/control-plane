@@ -13,6 +13,17 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 class KnipsAnalyticsClient
 {
+    /**
+     * Cached for the lifetime of this service instance (= one HTTP request,
+     * since it's a shared/singleton service) so that a page load calling
+     * fetchAnalytics()/fetchStats()/fetchStorage()/deleteEvent() multiple
+     * times only authenticates once. Without this, a handful of clicks
+     * (each triggering an authenticate + a Live Component re-render, itself
+     * re-authenticating) can trip Knips' own rate limit on /api/admin/auth
+     * (20 requests / 5 min, see Foto-Challenge/src/server.js authLimiter).
+     */
+    private ?string $cachedSessionCookie = null;
+
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         #[Autowire(env: 'KNIPS_BASE_URL')] private readonly string $baseUrl,
@@ -87,6 +98,10 @@ class KnipsAnalyticsClient
 
     private function authenticate(): string
     {
+        if (null !== $this->cachedSessionCookie) {
+            return $this->cachedSessionCookie;
+        }
+
         $response = $this->httpClient->request('POST', $this->baseUrl.'/api/admin/auth', [
             'json' => ['token' => $this->adminToken],
         ]);
@@ -96,6 +111,6 @@ class KnipsAnalyticsClient
             throw new TransportException('Knips auth response did not set a session cookie.');
         }
 
-        return explode(';', $setCookie, 2)[0];
+        return $this->cachedSessionCookie = explode(';', $setCookie, 2)[0];
     }
 }
