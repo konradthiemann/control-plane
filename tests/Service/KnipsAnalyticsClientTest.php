@@ -49,6 +49,31 @@ class KnipsAnalyticsClientTest extends TestCase
         self::assertNull($client->fetchAnalytics());
     }
 
+    public function testAuthenticationIsCachedAcrossMultipleCallsOnTheSameInstance(): void
+    {
+        $authRequests = 0;
+        $httpClient = new MockHttpClient(function (string $method, string $url) use (&$authRequests) {
+            if (str_ends_with($url, '/api/admin/auth')) {
+                ++$authRequests;
+
+                return new MockResponse('{}', ['response_headers' => ['set-cookie' => 'fca=session-token; Path=/; HttpOnly']]);
+            }
+
+            return new MockResponse('{}');
+        });
+
+        $client = new KnipsAnalyticsClient($httpClient, 'https://knips.example.test', 'secret-token');
+
+        // Simulates one page load calling multiple methods, plus a delete —
+        // must only authenticate once, not once per call (rate-limit safety).
+        $client->fetchAnalytics();
+        $client->fetchStats();
+        $client->fetchStorage();
+        $client->deleteEvent('some-event');
+
+        self::assertSame(1, $authRequests);
+    }
+
     public function testFetchStatsAuthenticatesThenReturnsDecodedPayload(): void
     {
         $httpClient = new MockHttpClient(function (string $method, string $url) {
