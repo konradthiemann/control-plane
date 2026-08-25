@@ -73,4 +73,54 @@ class KnipsAnalyticsClientTest extends TestCase
         self::assertCount(1, $result['days']);
         self::assertSame('Annette & Björn', $result['events'][0]['name']);
     }
+
+    public function testFetchStorageReturnsDecodedPayload(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url) {
+            if (str_ends_with($url, '/api/admin/auth')) {
+                return new MockResponse('{}', ['response_headers' => ['set-cookie' => 'fca=session-token; Path=/; HttpOnly']]);
+            }
+
+            return new MockResponse(json_encode(['fileCount' => 73, 'totalBytes' => 43338732]));
+        });
+
+        $client = new KnipsAnalyticsClient($httpClient, 'https://knips.example.test', 'secret-token');
+
+        self::assertSame(['fileCount' => 73, 'totalBytes' => 43338732], $client->fetchStorage());
+    }
+
+    public function testDeleteEventReturnsTrueOnSuccess(): void
+    {
+        $requests = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url) use (&$requests) {
+            $requests[] = ['method' => $method, 'url' => $url];
+
+            if (str_ends_with($url, '/api/admin/auth')) {
+                return new MockResponse('{}', ['response_headers' => ['set-cookie' => 'fca=session-token; Path=/; HttpOnly']]);
+            }
+
+            return new MockResponse('{"ok":true}');
+        });
+
+        $client = new KnipsAnalyticsClient($httpClient, 'https://knips.example.test', 'secret-token');
+
+        self::assertTrue($client->deleteEvent('party'));
+        self::assertSame('DELETE', $requests[1]['method']);
+        self::assertSame('https://knips.example.test/api/admin/events/party', $requests[1]['url']);
+    }
+
+    public function testDeleteEventReturnsFalseWhenEventNotFound(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url) {
+            if (str_ends_with($url, '/api/admin/auth')) {
+                return new MockResponse('{}', ['response_headers' => ['set-cookie' => 'fca=session-token; Path=/; HttpOnly']]);
+            }
+
+            return new MockResponse('{"error":"not_found"}', ['http_code' => 404]);
+        });
+
+        $client = new KnipsAnalyticsClient($httpClient, 'https://knips.example.test', 'secret-token');
+
+        self::assertFalse($client->deleteEvent('does-not-exist'));
+    }
 }

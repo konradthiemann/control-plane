@@ -17,10 +17,15 @@
             </div>
         {% else %}
             {% if knipsStats %}
+                {% set expiringSoon = knipsStats.totals.events - knipsStats.totals.activeEvents %}
                 <div class="kpi-row">
                     <div class="kpi-tile">
-                        <div class="value">{{ knipsStats.totals.events }}</div>
-                        <div class="label" data-tooltip="Alle jemals angelegten Events, inkl. abgelaufener (Retention 30 Tage).">Events</div>
+                        <div class="value">{{ knipsStats.totals.activeEvents }}</div>
+                        <div class="label" data-tooltip="Events innerhalb der 30-Tage-Aufbewahrung — noch voll nutzbar/abrufbar.">Aktiv</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ expiringSoon }}</div>
+                        <div class="label" data-tooltip="Über der 30-Tage-Aufbewahrung — werden binnen der nächsten Stunde automatisch endgültig gelöscht (keine separate Nachfrist).">Läuft in Kürze ab</div>
                     </div>
                     <div class="kpi-tile">
                         <div class="value">{{ knipsStats.totals.guests }}</div>
@@ -34,6 +39,12 @@
                         <div class="value">{{ (knipsStats.totals.revenueCents / 100)|number_format(2, ',', '.') }} €</div>
                         <div class="label" data-tooltip="Einmalpreis je Event nach gewähltem Preis-Tier, § 19 UStG (keine USt.).">Umsatz</div>
                     </div>
+                    {% if knipsStorage %}
+                        <div class="kpi-tile">
+                            <div class="value">{% set mb = knipsStorage.totalBytes / 1024 / 1024 %}{% if mb > 1024 %}{{ (mb / 1024)|number_format(2, ',', '.') }} GB{% else %}{{ mb|number_format(1, ',', '.') }} MB{% endif %}</div>
+                            <div class="label" data-tooltip="Speicherplatz aller hochgeladenen Fotos auf dem Railway-Volume ({{ knipsStorage.fileCount }} Dateien).">Speicher belegt</div>
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="card">
@@ -62,32 +73,7 @@
 
                 <div class="card">
                     <h2>Events</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th data-tooltip="Gekauftes Gäste-Limit (Preis-Tier) beim Anlegen des Events.">Limit</th>
-                                <th data-tooltip="Tatsächlich beigetretene Gäste.">Gäste</th>
-                                <th data-tooltip="Gäste im Verhältnis zum gekauften Limit (Gäste ÷ Limit).">Auslastung</th>
-                                <th data-tooltip="Hochgeladene Fotos in diesem Event.">Fotos</th>
-                                <th data-tooltip="Einmalpreis für dieses Event nach Preis-Tier.">Preis</th>
-                                <th data-tooltip="Aktiv = Event noch nicht abgelaufen (Retention 30 Tage).">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in knipsStats.events %}
-                                <tr>
-                                    <td>{{ event.name }}</td>
-                                    <td>{{ event.guestLimit }}</td>
-                                    <td>{{ event.guestCount }}</td>
-                                    <td>{{ event.guestLimit > 0 ? ((event.guestCount / event.guestLimit * 100)|round) ~ ' %' : '—' }}</td>
-                                    <td>{{ event.photoCount }}</td>
-                                    <td>{{ (event.priceCents / 100)|number_format(2, ',', '.') }} €</td>
-                                    <td><span class="badge {{ event.active ? 'badge-addressing' : 'badge-dismissed' }}">{{ event.active ? 'aktiv' : 'beendet' }}</span></td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {{ component('KnipsEventBoard') }}
                 </div>
             {% endif %}
 

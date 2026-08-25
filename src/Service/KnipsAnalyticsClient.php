@@ -54,6 +54,37 @@ class KnipsAnalyticsClient
         }
     }
 
+    /**
+     * @return array{fileCount: int, totalBytes: int}|null null if Knips is unreachable or auth fails
+     */
+    public function fetchStorage(): ?array
+    {
+        try {
+            $sessionCookie = $this->authenticate();
+            $response = $this->httpClient->request('GET', $this->baseUrl.'/api/admin/storage', [
+                'headers' => ['Cookie' => $sessionCookie],
+            ]);
+
+            return $response->toArray();
+        } catch (ExceptionInterface) {
+            return null;
+        }
+    }
+
+    public function deleteEvent(string $eventId): bool
+    {
+        try {
+            $sessionCookie = $this->authenticate();
+            $response = $this->httpClient->request('DELETE', $this->baseUrl.'/api/admin/events/'.rawurlencode($eventId), [
+                'headers' => ['Cookie' => $sessionCookie],
+            ]);
+
+            return 200 === $response->getStatusCode();
+        } catch (ExceptionInterface) {
+            return false;
+        }
+    }
+
     private function authenticate(): string
     {
         $response = $this->httpClient->request('POST', $this->baseUrl.'/api/admin/auth', [

@@ -22,6 +22,7 @@ class AppController extends AbstractController
         $knipsAnalytics = null;
         $knipsCharts = null;
         $knipsStats = null;
+        $knipsStorage = null;
         if ($appEntry->hasKnipsAnalytics) {
             $knipsAnalytics = $knipsAnalyticsClient->fetchAnalytics();
             if (null !== $knipsAnalytics) {
@@ -41,6 +42,8 @@ class AppController extends AbstractController
                 $knipsCharts['eventsPerDay'] = $charts->knipsDailySeriesChart($days, 'events', 'Events/Tag');
                 $knipsCharts['tiers'] = $charts->knipsTierChart($knipsStats['tierCounts'] ?? []);
             }
+
+            $knipsStorage = $knipsAnalyticsClient->fetchStorage();
         }
 
         return $this->render('app/show.html.twig', [
@@ -48,6 +51,7 @@ class AppController extends AbstractController
             'appEntry' => $appEntry,
             'knipsAnalytics' => $knipsAnalytics,
             'knipsStats' => $knipsStats,
+            'knipsStorage' => $knipsStorage,
             'knipsCharts' => $knipsCharts,
         ]);
     }
