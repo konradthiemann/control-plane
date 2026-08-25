@@ -96,6 +96,24 @@ class KnipsAnalyticsClient
         }
     }
 
+    /**
+     * @param array{priceOverrideCents?: int|null, suspended?: bool} $changes
+     */
+    public function updateEvent(string $eventId, array $changes): bool
+    {
+        try {
+            $sessionCookie = $this->authenticate();
+            $response = $this->httpClient->request('PATCH', $this->baseUrl.'/api/admin/events/'.rawurlencode($eventId), [
+                'headers' => ['Cookie' => $sessionCookie],
+                'json' => $changes,
+            ]);
+
+            return 200 === $response->getStatusCode();
+        } catch (ExceptionInterface) {
+            return false;
+        }
+    }
+
     private function authenticate(): string
     {
         if (null !== $this->cachedSessionCookie) {

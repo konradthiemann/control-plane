@@ -14,8 +14,9 @@
                     <th data-tooltip="Tatsächlich beigetretene Gäste.">Gäste</th>
                     <th data-tooltip="Gäste im Verhältnis zum gekauften Limit (Gäste ÷ Limit).">Auslastung</th>
                     <th data-tooltip="Hochgeladene Fotos in diesem Event.">Fotos</th>
-                    <th data-tooltip="Einmalpreis für dieses Event nach Preis-Tier.">Preis</th>
+                    <th data-tooltip="Einmalpreis für dieses Event nach Preis-Tier — hier manuell überschreibbar.">Preis</th>
                     <th data-tooltip="Aktiv = Event noch nicht abgelaufen. Läuft ab = wird binnen der nächsten Stunde automatisch endgültig gelöscht (keine separate Nachfrist).">Status</th>
+                    <th data-tooltip="Pausiert blockiert neue Beitritte/Uploads, löscht aber nichts — unabhängig vom Status oben.">Moderation</th>
                     <th>Aktion</th>
                 </tr>
             </thead>
@@ -27,8 +28,23 @@
                         <td>{{ event.guestCount }}</td>
                         <td>{{ event.guestLimit > 0 ? ((event.guestCount / event.guestLimit * 100)|round) ~ ' %' : '—' }}</td>
                         <td>{{ event.photoCount }}</td>
-                        <td>{{ (event.priceCents / 100)|number_format(2, ',', '.') }} €</td>
+                        <td>
+                            <form method="post" action="{{ path('app_knips_event_price', {eventId: event.id}) }}" style="display:flex; gap:0.3rem; align-items:center;">
+                                <input type="number" step="0.01" min="0" name="priceEuros" value="{{ (event.priceCents / 100)|number_format(2, '.', '') }}" style="width:5.5rem;">
+                                <button type="submit" name="action" value="save">Speichern</button>
+                                {% if event.priceOverrideCents is not null %}
+                                    <button type="submit" name="action" value="reset" title="Zurück zum automatisch berechneten Preis">Automatisch</button>
+                                {% endif %}
+                            </form>
+                        </td>
                         <td><span class="badge {{ event.active ? 'badge-addressing' : 'badge-dismissed' }}">{{ event.active ? 'aktiv' : 'läuft ab' }}</span></td>
+                        <td>
+                            <form method="post" action="{{ path('app_knips_event_moderation', {eventId: event.id}) }}" style="display:flex; gap:0.4rem; align-items:center;">
+                                <span class="badge {{ event.suspended ? 'badge-addressing' : 'badge-dismissed' }}">{{ event.suspended ? 'pausiert' : 'aktiv' }}</span>
+                                <input type="hidden" name="suspended" value="{{ event.suspended ? '0' : '1' }}">
+                                <button type="submit">{{ event.suspended ? 'Fortsetzen' : 'Pausieren' }}</button>
+                            </form>
+                        </td>
                         <td>
                             <button
                                 {{ live_action('deleteEvent', {eventId: event.id}) }}

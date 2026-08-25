@@ -148,4 +148,40 @@ class KnipsAnalyticsClientTest extends TestCase
 
         self::assertFalse($client->deleteEvent('does-not-exist'));
     }
+
+    public function testUpdateEventSendsPatchWithChangesAsJson(): void
+    {
+        $requests = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
+            $requests[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
+            if (str_ends_with($url, '/api/admin/auth')) {
+                return new MockResponse('{}', ['response_headers' => ['set-cookie' => 'fca=session-token; Path=/; HttpOnly']]);
+            }
+
+            return new MockResponse('{"id":"party","priceOverrideCents":0,"suspended":false}');
+        });
+
+        $client = new KnipsAnalyticsClient($httpClient, 'https://knips.example.test', 'secret-token');
+
+        self::assertTrue($client->updateEvent('party', ['priceOverrideCents' => 0]));
+        self::assertSame('PATCH', $requests[1]['method']);
+        self::assertSame('https://knips.example.test/api/admin/events/party', $requests[1]['url']);
+        self::assertSame('{"priceOverrideCents":0}', $requests[1]['options']['body']);
+    }
+
+    public function testUpdateEventReturnsFalseOnValidationError(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url) {
+            if (str_ends_with($url, '/api/admin/auth')) {
+                return new MockResponse('{}', ['response_headers' => ['set-cookie' => 'fca=session-token; Path=/; HttpOnly']]);
+            }
+
+            return new MockResponse('{"error":"invalid_price"}', ['http_code' => 400]);
+        });
+
+        $client = new KnipsAnalyticsClient($httpClient, 'https://knips.example.test', 'secret-token');
+
+        self::assertFalse($client->updateEvent('party', ['priceOverrideCents' => -5]));
+    }
 }
