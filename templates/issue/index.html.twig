@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Issues — Control Plane{% endblock %}
+
+{% block body %}
+    <main style="max-width: 60rem; margin: 4rem auto; font-family: sans-serif;">
+        <h1>Issues</h1>
+        <p><a href="{{ path('app_dashboard') }}">← Dashboard</a></p>
+
+        {{ component('IssueBoard') }}
+    </main>
+{% endblock %}
