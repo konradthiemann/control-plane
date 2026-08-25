@@ -6,6 +6,7 @@
     <main style="max-width: 40rem; margin: 4rem auto; font-family: sans-serif;">
         <h1>Control Plane</h1>
         <p>Angemeldet als {{ user.email }}.</p>
+        <p><a href="{{ path('app_issues') }}">Issues →</a></p>
 
         <h2>Knips</h2>
         {% if knipsAnalytics is null %}

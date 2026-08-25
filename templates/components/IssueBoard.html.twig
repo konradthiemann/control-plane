@@ -1,0 +1,45 @@
+<div {{ attributes }}>
+    <p>
+        {% if this.lastSyncedAt %}
+            Zuletzt synchronisiert: {{ this.lastSyncedAt|date('d.m.Y H:i') }}
+        {% else %}
+            Noch nie synchronisiert.
+        {% endif %}
+        <button {{ live_action('sync') }}>Jetzt synchronisieren</button>
+    </p>
+
+    {% if this.issues is empty %}
+        <p>Keine offenen Issues.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Repo</th>
+                    <th>Issue</th>
+                    <th>Status</th>
+                    <th>Aktion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in this.issues %}
+                    <tr>
+                        <td>{{ issue.repo }}</td>
+                        <td><a href="{{ issue.url }}" target="_blank" rel="noopener">#{{ issue.number }} {{ issue.title }}</a></td>
+                        <td>{{ issue.triageStatus.value }}</td>
+                        <td>
+                            {% if issue.triageStatus.value != 'addressing' %}
+                                <button {{ live_action('setStatus', {issueId: issue.id, status: 'addressing'}) }}>Angehen</button>
+                            {% endif %}
+                            {% if issue.triageStatus.value != 'dismissed' %}
+                                <button {{ live_action('setStatus', {issueId: issue.id, status: 'dismissed'}) }}>Verwerfen</button>
+                            {% endif %}
+                            {% if issue.triageStatus.value != 'new' %}
+                                <button {{ live_action('setStatus', {issueId: issue.id, status: 'new'}) }}>Zurücksetzen</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
