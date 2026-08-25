@@ -1,0 +1,47 @@
+{% extends '_layout/shell.html.twig' %}
+
+{% block title %}{{ appEntry.displayName }} — Control Plane{% endblock %}
+
+{% block page %}
+    <div class="page-header">
+        <h1>{{ appEntry.displayName }}</h1>
+        <div class="meta">
+            <a href="https://github.com/konradthiemann/{{ appEntry.githubRepo }}" target="_blank" rel="noopener">GitHub-Repo →</a>
+        </div>
+    </div>
+
+    {% if appEntry.hasKnipsAnalytics %}
+        <div class="card">
+            <h2>Analytics</h2>
+
+            {% if knipsAnalytics is null %}
+                <p class="empty-state">Knips aktuell nicht erreichbar.</p>
+            {% else %}
+                <h3>Funnel</h3>
+                <div class="chart-box">
+                    {{ render_chart(knipsCharts.funnel) }}
+                </div>
+
+                <h3>Geräte</h3>
+                <div class="chart-box chart-box--short">
+                    {{ render_chart(knipsCharts.devices) }}
+                </div>
+
+                <h3>Uploads nach Kategorie</h3>
+                <div class="chart-box">
+                    {{ render_chart(knipsCharts.uploads) }}
+                </div>
+
+                <h3>Übersprungen nach Kategorie</h3>
+                <div class="chart-box">
+                    {{ render_chart(knipsCharts.skips) }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="card">
+        <h2>Offene Issues</h2>
+        {{ component('IssueBoard', {repoFilter: appEntry.githubRepo}) }}
+    </div>
+{% endblock %}

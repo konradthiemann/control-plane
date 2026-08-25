@@ -10,12 +10,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveArg;
+use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
 #[AsLiveComponent]
 class IssueBoard
 {
     use DefaultActionTrait;
+
+    #[LiveProp]
+    public ?string $repoFilter = null;
 
     public function __construct(
         private readonly GithubIssueSyncer $syncer,
@@ -29,7 +33,7 @@ class IssueBoard
      */
     public function getIssues(): array
     {
-        return $this->repository->findAllOrderedByRepoAndNumber();
+        return $this->repository->findAllOrderedByRepoAndNumber($this->repoFilter);
     }
 
     public function getLastSyncedAt(): ?\DateTimeImmutable

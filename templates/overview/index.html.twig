@@ -1,0 +1,43 @@
+{% extends '_layout/shell.html.twig' %}
+
+{% block title %}Übersicht — Control Plane{% endblock %}
+
+{% block page %}
+    <div class="page-header">
+        <h1>Übersicht</h1>
+    </div>
+
+    <div class="kpi-row">
+        <div class="kpi-tile">
+            <div class="value">{{ totalOpenIssues }}</div>
+            <div class="label">Offene Issues gesamt</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="value">{{ apps|length }}</div>
+            <div class="label">Apps im Blick</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="value">{% if lastSyncedAt %}{{ lastSyncedAt|date('d.m. H:i') }}{% else %}—{% endif %}</div>
+            <div class="label">Letzter Issue-Sync</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Offene Issues pro App</h2>
+        <div class="chart-box">
+            {{ render_chart(issuesPerAppChart) }}
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Apps</h2>
+        <div class="app-grid">
+            {% for entry in apps %}
+                <a class="app-card" href="{{ path('app_show', {slug: entry.slug}) }}">
+                    <div class="app-card-name">{{ entry.displayName }}</div>
+                    <div class="app-card-meta">{{ entry.githubRepo }}{% if entry.hasKnipsAnalytics %} · Analytics{% endif %}</div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

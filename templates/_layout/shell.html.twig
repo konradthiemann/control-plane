@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand">Control Plane</div>
+
+            <ul class="sidebar-nav">
+                <li><a href="{{ path('app_overview') }}" class="{{ app.request.attributes.get('_route') == 'app_overview' ? 'active' }}">Übersicht</a></li>
+            </ul>
+
+            <div>
+                <div class="sidebar-section-label">Apps</div>
+                <ul class="sidebar-nav">
+                    {% for entry in apps %}
+                        <li>
+                            <a href="{{ path('app_show', {slug: entry.slug}) }}"
+                               class="{{ app.request.attributes.get('_route') == 'app_show' and app.request.attributes.get('slug') == entry.slug ? 'active' }}">
+                                {{ entry.displayName }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li><a href="{{ path('app_issues') }}" class="{{ app.request.attributes.get('_route') == 'app_issues' ? 'active' }}">Alle Issues</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                {{ app.user.email }}<br>
+                <a href="{{ path('app_logout') }}">Abmelden</a>
+            </div>
+        </aside>
+
+        <main class="main">
+            {% block page %}{% endblock %}
+        </main>
+    </div>
+{% endblock %}

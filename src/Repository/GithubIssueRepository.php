@@ -19,13 +19,36 @@ class GithubIssueRepository extends ServiceEntityRepository
     /**
      * @return list<GithubIssue>
      */
-    public function findAllOrderedByRepoAndNumber(): array
+    public function findAllOrderedByRepoAndNumber(?string $repo = null): array
     {
-        return $this->createQueryBuilder('i')
+        $qb = $this->createQueryBuilder('i')
             ->orderBy('i.repo', 'ASC')
-            ->addOrderBy('i.number', 'ASC')
+            ->addOrderBy('i.number', 'ASC');
+
+        if (null !== $repo) {
+            $qb->andWhere('i.repo = :repo')->setParameter('repo', $repo);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function countGroupedByRepo(): array
+    {
+        $rows = $this->createQueryBuilder('i')
+            ->select('i.repo AS repo', 'COUNT(i.id) AS count')
+            ->groupBy('i.repo')
             ->getQuery()
             ->getResult();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[$row['repo']] = (int) $row['count'];
+        }
+
+        return $counts;
     }
 
     public function findLastSyncedAt(): ?\DateTimeImmutable

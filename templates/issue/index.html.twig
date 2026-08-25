@@ -1,12 +1,13 @@
-{% extends 'base.html.twig' %}
+{% extends '_layout/shell.html.twig' %}
 
-{% block title %}Issues — Control Plane{% endblock %}
+{% block title %}Alle Issues — Control Plane{% endblock %}
 
-{% block body %}
-    <main style="max-width: 60rem; margin: 4rem auto; font-family: sans-serif;">
-        <h1>Issues</h1>
-        <p><a href="{{ path('app_dashboard') }}">← Dashboard</a></p>
+{% block page %}
+    <div class="page-header">
+        <h1>Alle Issues</h1>
+    </div>
 
+    <div class="card">
         {{ component('IssueBoard') }}
-    </main>
+    </div>
 {% endblock %}
