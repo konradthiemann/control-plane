@@ -208,6 +208,19 @@ class DashboardChartFactory
     }
 
     /**
+     * Doewe's per-day usage series (logins/transactions/receiptScans). Reuses
+     * knipsDailySeriesChart's generic line-chart config — the builder only
+     * needs a `date` column plus an arbitrary numeric `$key`, nothing
+     * Knips-specific, so no new Chart.js config is warranted here.
+     *
+     * @param list<array{date: string, logins: int, transactions: int, receiptScans: int}> $series
+     */
+    public function doeweUsageChart(array $series, string $key, string $label): Chart
+    {
+        return $this->knipsDailySeriesChart($series, $key, $label);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function barOptions(bool $horizontal, bool $legend, bool $stacked = false): array
