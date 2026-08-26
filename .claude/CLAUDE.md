@@ -29,5 +29,12 @@ docker compose exec php bin/console lint:yaml config             # Lint
 docker compose exec php bin/console lint:twig templates          # Lint
 ```
 
+## Live Components (Symfony UX)
+`symfony/ux-live-component` 3.4 hat CSRF-Tokens entfernt — Schutz läuft über
+Same-Origin + Pflicht-Header `X-Requested-With`. Bei neuen `#[LiveAction]`-
+Methoden **kein** `csrf_token()`/`isCsrfTokenValid()` nachrüsten (das ist
+nur für klassische Symfony-Forms wie `templates/security/login.html.twig`
+relevant) — der Schutz ist schon da.
+
 ## Admin-User
 `ADMIN_EMAIL` / `ADMIN_PASSWORD` als Env setzen, dann `bin/console app:seed-admin` — kein volles User-Management, Solo-Betreiber.
