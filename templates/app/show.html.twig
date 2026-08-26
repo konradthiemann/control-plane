@@ -64,6 +64,14 @@
                 </div>
 
                 <div class="card">
+                    <h2>Tageszeit-Verteilung</h2>
+                    <p class="meta" style="margin-top: -0.5rem;">Zu welcher Uhrzeit (Europe/Berlin) im Schnitt die meisten Fotos gemacht werden — über alle Events hinweg.</p>
+                    <div class="chart-box">
+                        {{ render_chart(knipsCharts.photosByHour) }}
+                    </div>
+                </div>
+
+                <div class="card">
                     <h2>Preis-Tiers</h2>
                     <p class="meta" style="margin-top: -0.5rem;">Welches Guest-Limit beim Anlegen eines Events gewählt wurde.</p>
                     <div class="chart-box">
