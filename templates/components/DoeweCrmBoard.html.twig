@@ -69,6 +69,7 @@
                     <th data-tooltip="Erfasste Beleg-Scans dieses Haushalts — informiert eine künftige Preis-Tier-Entscheidung.">Beleg-Scans</th>
                     <th>Erstellt</th>
                     <th>Mitglied abspalten</th>
+                    <th>Aktion</th>
                 </tr>
             </thead>
             <tbody>
@@ -92,6 +93,12 @@
                                     >{{ member.email }} abspalten</button>
                                 {% endfor %}
                             {% endif %}
+                        </td>
+                        <td class="actions">
+                            <button
+                                {{ live_action('deleteHousehold', {householdId: household.id}) }}
+                                onclick="if(!confirm('Haushalt „{{ (household.name ?? household.id)|e('js') }}“ wirklich komplett löschen? Alle {{ household.memberCount }} Mitglieder verlieren den Zugriff.')){event.preventDefault();event.stopImmediatePropagation();}"
+                            >Löschen</button>
                         </td>
                     </tr>
                 {% endfor %}

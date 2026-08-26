@@ -85,4 +85,12 @@ class DoeweCrmBoard
             $this->lastError = 'Abspalten fehlgeschlagen — Doewe war nicht erreichbar oder das Mitglied gehört nicht mehr zu diesem Haushalt.';
         }
     }
+
+    #[LiveAction]
+    public function deleteHousehold(#[LiveArg] string $householdId): void
+    {
+        if (!$this->client->deleteHousehold($householdId)) {
+            $this->lastError = 'Löschen fehlgeschlagen — Doewe war nicht erreichbar oder der Haushalt existiert nicht mehr.';
+        }
+    }
 }

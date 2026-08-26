@@ -139,4 +139,21 @@ class DoeweAnalyticsClient
             return false;
         }
     }
+
+    /**
+     * Soft-delete only — cascades to every current member on Doewe's side
+     * (locks out the whole household, not just hides it). Idempotent.
+     */
+    public function deleteHousehold(string $householdId): bool
+    {
+        try {
+            $response = $this->httpClient->request('POST', $this->baseUrl.'/api/admin/households/'.rawurlencode($householdId).'/delete', [
+                'headers' => ['Authorization' => 'Bearer '.$this->serviceToken],
+            ]);
+
+            return 200 === $response->getStatusCode();
+        } catch (ExceptionInterface) {
+            return false;
+        }
+    }
 }

@@ -183,4 +183,29 @@ class DoeweAnalyticsClientTest extends TestCase
 
         self::assertFalse($client->splitHouseholdMember('h1', 'unknown'));
     }
+
+    public function testDeleteHouseholdSendsNoBodyAndReturnsTrueOnSuccess(): void
+    {
+        $requests = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
+            $requests[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
+            return new MockResponse('{"ok":true,"deletedAt":"2026-08-26T00:00:00.000Z","memberCount":2}');
+        });
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        self::assertTrue($client->deleteHousehold('h1'));
+        self::assertSame('POST', $requests[0]['method']);
+        self::assertSame('https://doewe.example.test/api/admin/households/h1/delete', $requests[0]['url']);
+    }
+
+    public function testDeleteHouseholdReturnsFalseWhenHouseholdNotFound(): void
+    {
+        $httpClient = new MockHttpClient(fn () => new MockResponse('{"error":"Household not found"}', ['http_code' => 404]));
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        self::assertFalse($client->deleteHousehold('unknown'));
+    }
 }
