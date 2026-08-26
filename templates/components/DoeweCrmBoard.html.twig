@@ -1,0 +1,101 @@
+<div {{ attributes }}>
+    {% if this.lastError %}
+        <div class="alert alert-danger">{{ this.lastError }}</div>
+    {% endif %}
+
+    <h3>Nutzer</h3>
+    {% if this.users is empty %}
+        <p class="empty-state">Keine Nutzer.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>E-Mail</th>
+                    <th>Name</th>
+                    <th data-tooltip="ID des Haushalts, dem dieser Nutzer angehört.">Haushalt</th>
+                    <th>Status</th>
+                    <th data-tooltip="Letzter erfolgreicher Login. Leer, wenn noch nie eingeloggt.">Letzter Login</th>
+                    <th>Aktion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in this.users %}
+                    <tr>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.name ?? '—' }}</td>
+                        <td>{{ user.householdId ?? '—' }}</td>
+                        <td>
+                            {% if user.deletedAt %}
+                                <span class="badge badge-dismissed">gelöscht</span>
+                            {% elseif user.suspendedAt %}
+                                <span class="badge badge-addressing">gesperrt</span>
+                            {% else %}
+                                <span class="badge badge-new">aktiv</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y H:i') : '—' }}</td>
+                        <td class="actions">
+                            {% if not user.deletedAt %}
+                                {% if user.suspendedAt %}
+                                    <button {{ live_action('suspendUser', {userId: user.id, suspended: false}) }}>Entsperren</button>
+                                {% else %}
+                                    <button {{ live_action('suspendUser', {userId: user.id, suspended: true}) }}>Sperren</button>
+                                {% endif %}
+                                <button
+                                    {{ live_action('deleteUser', {userId: user.id}) }}
+                                    onclick="if(!confirm('Nutzer „{{ user.email|e('js') }}“ wirklich löschen (Soft-Delete)?')){event.preventDefault();event.stopImmediatePropagation();}"
+                                >Löschen</button>
+                            {% else %}
+                                <span class="meta">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <h3 style="margin-top: 1.5rem;">Haushalte</h3>
+    {% if this.households is empty %}
+        <p class="empty-state">Keine Haushalte.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Mitglieder</th>
+                    <th>Konten</th>
+                    <th>Transaktionen</th>
+                    <th data-tooltip="Erfasste Beleg-Scans dieses Haushalts — informiert eine künftige Preis-Tier-Entscheidung.">Beleg-Scans</th>
+                    <th>Erstellt</th>
+                    <th>Mitglied abspalten</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for household in this.households %}
+                    <tr>
+                        <td>{{ household.name ?? '—' }}</td>
+                        <td>{{ household.memberCount }}</td>
+                        <td>{{ household.accountsCount }}</td>
+                        <td>{{ household.transactionsCount }}</td>
+                        <td>{{ household.receiptScanCount }}</td>
+                        <td>{{ household.createdAt|date('d.m.Y') }}</td>
+                        <td class="actions">
+                            {% set members = this.users|filter(u => u.householdId == household.id) %}
+                            {% if members is empty %}
+                                <span class="meta">keine Mitglieder</span>
+                            {% else %}
+                                {% for member in members %}
+                                    <button
+                                        {{ live_action('splitMember', {householdId: household.id, userId: member.id}) }}
+                                        onclick="if(!confirm('„{{ member.email|e('js') }}“ wirklich in einen eigenen, neuen Haushalt abspalten?')){event.preventDefault();event.stopImmediatePropagation();}"
+                                    >{{ member.email }} abspalten</button>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>

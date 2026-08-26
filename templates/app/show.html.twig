@@ -156,6 +156,35 @@
         </div>
     {% endif %}
 
+    {% if appEntry.hasDoeweCrm %}
+        {% if doeweUsageCharts %}
+            <div class="card">
+                <h2>Verlauf (30 Tage)</h2>
+                <h3>Logins pro Tag</h3>
+                <div class="chart-box">
+                    {{ render_chart(doeweUsageCharts.logins) }}
+                </div>
+                <h3>Transaktionen pro Tag</h3>
+                <div class="chart-box chart-box--short">
+                    {{ render_chart(doeweUsageCharts.transactions) }}
+                </div>
+                <h3>Beleg-Scans pro Tag</h3>
+                <div class="chart-box chart-box--short">
+                    {{ render_chart(doeweUsageCharts.receiptScans) }}
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <p class="empty-state">Doewe-Nutzungsdaten aktuell nicht erreichbar.</p>
+            </div>
+        {% endif %}
+
+        <div class="card">
+            <h2>Nutzer &amp; Haushalte</h2>
+            {{ component('DoeweCrmBoard') }}
+        </div>
+    {% endif %}
+
     <div class="card">
         <h2>Offene Issues</h2>
         {{ component('IssueBoard', {repoFilter: appEntry.githubRepo}) }}

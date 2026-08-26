@@ -46,4 +46,141 @@ class DoeweAnalyticsClientTest extends TestCase
 
         self::assertNull($client->fetchStats());
     }
+
+    public function testFetchUsersSendsPaginationQueryAndReturnsDecodedPayload(): void
+    {
+        $requests = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
+            $requests[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
+            return new MockResponse(json_encode([
+                'page' => 1,
+                'pageSize' => 200,
+                'total' => 2,
+                'users' => [
+                    ['id' => 'u1', 'email' => 'a@example.test', 'name' => 'A', 'createdAt' => '2026-01-01T00:00:00Z', 'householdId' => 'h1', 'suspendedAt' => null, 'deletedAt' => null, 'lastLoginAt' => null],
+                    ['id' => 'u2', 'email' => 'b@example.test', 'name' => 'B', 'createdAt' => '2026-01-02T00:00:00Z', 'householdId' => 'h1', 'suspendedAt' => null, 'deletedAt' => null, 'lastLoginAt' => '2026-08-20T10:00:00Z'],
+                ],
+            ]));
+        });
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        $result = $client->fetchUsers(1, 200);
+
+        self::assertSame('GET', $requests[0]['method']);
+        self::assertSame('https://doewe.example.test/api/admin/users?page=1&pageSize=200', $requests[0]['url']);
+        self::assertSame(2, $result['total']);
+        self::assertCount(2, $result['users']);
+    }
+
+    public function testFetchHouseholdsReturnsDecodedPayload(): void
+    {
+        $httpClient = new MockHttpClient(fn () => new MockResponse(json_encode([
+            'households' => [
+                ['id' => 'h1', 'name' => 'Familie A', 'memberCount' => 2, 'createdAt' => '2026-01-01T00:00:00Z', 'accountsCount' => 3, 'transactionsCount' => 40, 'receiptScanCount' => 5],
+            ],
+        ])));
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        $result = $client->fetchHouseholds();
+
+        self::assertCount(1, $result['households']);
+        self::assertSame(5, $result['households'][0]['receiptScanCount']);
+    }
+
+    public function testFetchUsageSendsDaysQueryAndReturnsSeries(): void
+    {
+        $requests = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
+            $requests[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
+            return new MockResponse(json_encode([
+                'days' => 2,
+                'from' => '2026-08-24T00:00:00.000Z',
+                'to' => '2026-08-26T00:00:00.000Z',
+                'series' => [
+                    ['date' => '2026-08-24', 'logins' => 3, 'transactions' => 10, 'receiptScans' => 1],
+                    ['date' => '2026-08-25', 'logins' => 5, 'transactions' => 8, 'receiptScans' => 2],
+                ],
+            ]));
+        });
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        $result = $client->fetchUsage(2);
+
+        self::assertSame('https://doewe.example.test/api/admin/usage?days=2', $requests[0]['url']);
+        self::assertCount(2, $result['series']);
+        self::assertSame(3, $result['series'][0]['logins']);
+    }
+
+    public function testSuspendUserSendsSuspendedFlagAsJsonBody(): void
+    {
+        $requests = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
+            $requests[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
+            return new MockResponse('{"ok":true,"suspendedAt":"2026-08-26T00:00:00.000Z"}');
+        });
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        self::assertTrue($client->suspendUser('u1', true));
+        self::assertSame('POST', $requests[0]['method']);
+        self::assertSame('https://doewe.example.test/api/admin/users/u1/suspend', $requests[0]['url']);
+        self::assertSame('{"suspended":true}', $requests[0]['options']['body']);
+    }
+
+    public function testSuspendUserReturnsFalseWhenUserNotFound(): void
+    {
+        $httpClient = new MockHttpClient(fn () => new MockResponse('{"error":"User not found"}', ['http_code' => 404]));
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        self::assertFalse($client->suspendUser('unknown', true));
+    }
+
+    public function testDeleteUserSendsNoBodyAndReturnsTrueOnSuccess(): void
+    {
+        $requests = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
+            $requests[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
+            return new MockResponse('{"ok":true,"deletedAt":"2026-08-26T00:00:00.000Z"}');
+        });
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        self::assertTrue($client->deleteUser('u1'));
+        self::assertSame('POST', $requests[0]['method']);
+        self::assertSame('https://doewe.example.test/api/admin/users/u1/delete', $requests[0]['url']);
+    }
+
+    public function testSplitHouseholdMemberSendsUserIdAsJsonBody(): void
+    {
+        $requests = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests) {
+            $requests[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
+            return new MockResponse('{"ok":true,"newHouseholdId":"h2"}');
+        });
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        self::assertTrue($client->splitHouseholdMember('h1', 'u2'));
+        self::assertSame('POST', $requests[0]['method']);
+        self::assertSame('https://doewe.example.test/api/admin/households/h1/split-member', $requests[0]['url']);
+        self::assertSame('{"userId":"u2"}', $requests[0]['options']['body']);
+    }
+
+    public function testSplitHouseholdMemberReturnsFalseWhenMemberNotInHousehold(): void
+    {
+        $httpClient = new MockHttpClient(fn () => new MockResponse('{"error":"Member not found in household"}', ['http_code' => 404]));
+
+        $client = new DoeweAnalyticsClient($httpClient, 'https://doewe.example.test', 'secret-token');
+
+        self::assertFalse($client->splitHouseholdMember('h1', 'unknown'));
+    }
 }

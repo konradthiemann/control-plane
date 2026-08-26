@@ -60,6 +60,20 @@ class AppController extends AbstractController
             }
         }
 
+        $doeweUsage = null;
+        $doeweUsageCharts = null;
+        if ($appEntry->hasDoeweCrm) {
+            $doeweUsage = $doeweAnalyticsClient->fetchUsage(30);
+            if (null !== $doeweUsage) {
+                $series = $doeweUsage['series'] ?? [];
+                $doeweUsageCharts = [
+                    'logins' => $charts->doeweUsageChart($series, 'logins', 'Logins/Tag'),
+                    'transactions' => $charts->doeweUsageChart($series, 'transactions', 'Transaktionen/Tag'),
+                    'receiptScans' => $charts->doeweUsageChart($series, 'receiptScans', 'Beleg-Scans/Tag'),
+                ];
+            }
+        }
+
         return $this->render('app/show.html.twig', [
             'apps' => AppRegistry::all(),
             'appEntry' => $appEntry,
@@ -69,6 +83,8 @@ class AppController extends AbstractController
             'knipsCharts' => $knipsCharts,
             'doeweStats' => $doeweStats,
             'doeweChart' => $doeweChart,
+            'doeweUsage' => $doeweUsage,
+            'doeweUsageCharts' => $doeweUsageCharts,
         ]);
     }
 }
