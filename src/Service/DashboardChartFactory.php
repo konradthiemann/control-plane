@@ -162,6 +162,31 @@ class DashboardChartFactory
     /**
      * @param array<string, int> $tierCounts guest-limit label ("3", "5", …) => number of events
      */
+    /**
+     * Tageszeit-Verteilung (0-23 Uhr, Europe/Berlin) — wann werden im Schnitt
+     * die meisten Fotos gemacht. Vertikale Balken statt horizontal (wie
+     * knipsCategoryChart), da 24 Kategorien horizontal zu hoch würden — hier
+     * ist die x-Achse als Tagesverlauf ohnehin die vertraute Leserichtung.
+     *
+     * @param list<array{hour: int, count: int}> $rows
+     */
+    public function knipsPhotosByHourChart(array $rows): Chart
+    {
+        $chart = $this->chartBuilder->createChart(Chart::TYPE_BAR);
+        $chart->setData([
+            'labels' => array_map(static fn (array $r) => sprintf('%02d', $r['hour']), $rows),
+            'datasets' => [[
+                'label' => 'Fotos',
+                'backgroundColor' => self::BLUE,
+                'borderRadius' => 4,
+                'data' => array_column($rows, 'count'),
+            ]],
+        ]);
+        $chart->setOptions($this->barOptions(horizontal: false, legend: false));
+
+        return $chart;
+    }
+
     public function knipsTierChart(array $tierCounts): Chart
     {
         ksort($tierCounts, SORT_NUMERIC);

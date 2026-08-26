@@ -46,6 +46,7 @@ class AppController extends AbstractController
                 $knipsCharts['guestsPerDay'] = $charts->knipsDailySeriesChart($days, 'guests', 'Gäste/Tag');
                 $knipsCharts['eventsPerDay'] = $charts->knipsDailySeriesChart($days, 'events', 'Events/Tag');
                 $knipsCharts['tiers'] = $charts->knipsTierChart($knipsStats['tierCounts'] ?? []);
+                $knipsCharts['photosByHour'] = $charts->knipsPhotosByHourChart($knipsStats['photosByHour'] ?? []);
             }
 
             $knipsStorage = $knipsAnalyticsClient->fetchStorage();
