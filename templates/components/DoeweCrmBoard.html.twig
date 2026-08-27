@@ -7,6 +7,7 @@
     {% if this.users is empty %}
         <p class="empty-state">Keine Nutzer.</p>
     {% else %}
+        <div class="table-scroll">
         <table>
             <thead>
                 <tr>
@@ -21,10 +22,10 @@
             <tbody>
                 {% for user in this.users %}
                     <tr>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.name ?? '—' }}</td>
-                        <td>{{ user.householdId ?? '—' }}</td>
-                        <td>
+                        <td data-label="E-Mail">{{ user.email }}</td>
+                        <td data-label="Name">{{ user.name ?? '—' }}</td>
+                        <td data-label="Haushalt">{{ user.householdId ?? '—' }}</td>
+                        <td data-label="Status">
                             {% if user.deletedAt %}
                                 <span class="badge badge-dismissed">gelöscht</span>
                             {% elseif user.suspendedAt %}
@@ -33,7 +34,7 @@
                                 <span class="badge badge-new">aktiv</span>
                             {% endif %}
                         </td>
-                        <td>{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y H:i') : '—' }}</td>
+                        <td data-label="Letzter Login">{{ user.lastLoginAt ? user.lastLoginAt|date('d.m.Y H:i') : '—' }}</td>
                         <td class="actions">
                             {% if not user.deletedAt %}
                                 {% if user.suspendedAt %}
@@ -53,12 +54,14 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     {% endif %}
 
     <h3 style="margin-top: 1.5rem;">Haushalte</h3>
     {% if this.households is empty %}
         <p class="empty-state">Keine Haushalte.</p>
     {% else %}
+        <div class="table-scroll">
         <table>
             <thead>
                 <tr>
@@ -75,13 +78,13 @@
             <tbody>
                 {% for household in this.households %}
                     <tr>
-                        <td>{{ household.name ?? '—' }}</td>
-                        <td>{{ household.memberCount }}</td>
-                        <td>{{ household.accountsCount }}</td>
-                        <td>{{ household.transactionsCount }}</td>
-                        <td>{{ household.receiptScanCount }}</td>
-                        <td>{{ household.createdAt|date('d.m.Y') }}</td>
-                        <td class="actions">
+                        <td data-label="Name">{{ household.name ?? '—' }}</td>
+                        <td data-label="Mitglieder">{{ household.memberCount }}</td>
+                        <td data-label="Konten">{{ household.accountsCount }}</td>
+                        <td data-label="Transaktionen">{{ household.transactionsCount }}</td>
+                        <td data-label="Beleg-Scans">{{ household.receiptScanCount }}</td>
+                        <td data-label="Erstellt">{{ household.createdAt|date('d.m.Y') }}</td>
+                        <td class="actions" data-label="Mitglied abspalten">
                             {% set members = this.users|filter(u => u.householdId == household.id) %}
                             {% if members is empty %}
                                 <span class="meta">keine Mitglieder</span>
@@ -94,7 +97,7 @@
                                 {% endfor %}
                             {% endif %}
                         </td>
-                        <td class="actions">
+                        <td class="actions" data-label="Aktion">
                             <button
                                 {{ live_action('deleteHousehold', {householdId: household.id}) }}
                                 onclick="if(!confirm('Haushalt „{{ (household.name ?? household.id)|e('js') }}“ wirklich komplett löschen? Alle {{ household.memberCount }} Mitglieder verlieren den Zugriff.')){event.preventDefault();event.stopImmediatePropagation();}"
@@ -104,5 +107,6 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     {% endif %}
 </div>
