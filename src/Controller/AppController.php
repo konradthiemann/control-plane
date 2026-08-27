@@ -6,6 +6,7 @@ use App\Config\AppRegistry;
 use App\Service\DashboardChartFactory;
 use App\Service\DoeweAnalyticsClient;
 use App\Service\KnipsAnalyticsClient;
+use App\Service\KnipsTaskRanking;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,6 +19,7 @@ class AppController extends AbstractController
         KnipsAnalyticsClient $knipsAnalyticsClient,
         DoeweAnalyticsClient $doeweAnalyticsClient,
         DashboardChartFactory $charts,
+        KnipsTaskRanking $taskRanking,
     ): Response {
         $appEntry = AppRegistry::findBySlug($slug);
         if (null === $appEntry) {
@@ -28,8 +30,10 @@ class AppController extends AbstractController
         $knipsCharts = null;
         $knipsStats = null;
         $knipsStorage = null;
+        $knipsTaskRanking = null;
         if ($appEntry->hasKnipsAnalytics) {
             $knipsAnalytics = $knipsAnalyticsClient->fetchAnalytics();
+            $knipsTaskRanking = $taskRanking->build($knipsAnalytics);
             if (null !== $knipsAnalytics) {
                 $knipsCharts = [
                     'funnel' => $charts->knipsFunnelChart($knipsAnalytics['funnel'] ?? []),
@@ -82,6 +86,7 @@ class AppController extends AbstractController
             'knipsStats' => $knipsStats,
             'knipsStorage' => $knipsStorage,
             'knipsCharts' => $knipsCharts,
+            'knipsTaskRanking' => $knipsTaskRanking,
             'doeweStats' => $doeweStats,
             'doeweChart' => $doeweChart,
             'doeweUsage' => $doeweUsage,

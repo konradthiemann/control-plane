@@ -109,6 +109,10 @@
                         {{ render_chart(knipsCharts.skips) }}
                     </div>
                 </div>
+
+                {% if knipsTaskRanking %}
+                    {{ include('app/_knips_task_performance.html.twig', {r: knipsTaskRanking}) }}
+                {% endif %}
             {% endif %}
         {% endif %}
     {% endif %}
