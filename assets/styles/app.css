@@ -160,6 +160,16 @@ a:hover {
     }
 }
 
+@media (max-width: 30rem) {
+    .kpi-row {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-tile .value {
+        font-size: 1.5rem;
+    }
+}
+
 .kpi-tile {
     background: var(--surface-card);
     border: 1px solid var(--border);
@@ -242,6 +252,10 @@ a:hover {
 .app-card .app-card-meta {
     color: var(--text-muted);
     font-size: 0.85rem;
+}
+
+.table-scroll {
+    overflow-x: auto;
 }
 
 table {
@@ -427,13 +441,28 @@ th[data-tooltip] {
     .sidebar {
         width: auto;
         flex-direction: row;
+        align-items: center;
         overflow-x: auto;
         border-right: none;
         border-bottom: 1px solid var(--border);
     }
 
+    .sidebar-brand,
+    .sidebar-nav,
+    .sidebar-nav li,
+    .sidebar-section-label {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
     .sidebar-nav {
         flex-direction: row;
+    }
+
+    .sidebar > div {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .sidebar-footer {
@@ -442,5 +471,102 @@ th[data-tooltip] {
 
     .main {
         padding: 1.5rem;
+    }
+}
+
+@media (max-width: 30rem) {
+    .main {
+        padding: 1rem;
+        max-width: 100%;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .login-page {
+        padding: 1.5rem;
+    }
+
+    .login-card {
+        width: 100%;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 40rem) {
+    .table-scroll table,
+    .table-scroll thead,
+    .table-scroll tbody,
+    .table-scroll th,
+    .table-scroll td,
+    .table-scroll tr {
+        display: block;
+    }
+
+    .table-scroll {
+        overflow-x: visible;
+    }
+
+    .table-scroll thead tr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .table-scroll tr {
+        margin-bottom: 0.85rem;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 0.5rem 0.85rem;
+        background: var(--surface-card);
+        box-shadow: var(--shadow);
+    }
+
+    .table-scroll tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .table-scroll td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        border-bottom: 1px solid var(--border);
+        padding: 0.55rem 0;
+        text-align: right;
+    }
+
+    .table-scroll td:last-child {
+        border-bottom: none;
+    }
+
+    .table-scroll td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .table-scroll td.actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .table-scroll td.actions::before {
+        display: none;
+    }
+
+    .table-scroll td form {
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 }
