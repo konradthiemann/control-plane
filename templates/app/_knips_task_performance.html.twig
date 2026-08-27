@@ -1,0 +1,94 @@
+<div class="card">
+    <h2>Aufgaben-Performance</h2>
+    <p class="meta" style="margin-top: -0.5rem;">Nur Aufgaben mit mindestens {{ r.minExposures }} Zuweisungen werden gelistet — darunter ist die Stichprobe statistisch nicht aussagekräftig.</p>
+
+    {% if r.totalRanked == 0 %}
+        <p class="empty-state">{{ r.totalTracked }} Aufgabe{{ r.totalTracked == 1 ? '' : 'n' }} erfasst, noch keine über der Mindest-Stichprobe.</p>
+    {% else %}
+        <h3>Häufigste Skips</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kategorie</th>
+                    <th>Aufgabe</th>
+                    <th data-tooltip="Wie oft die Aufgabe tatsächlich fotografiert wurde.">Gespielt</th>
+                    <th data-tooltip="Wie oft die Aufgabe übersprungen wurde — Gast macht mit einer anderen Aufgabe weiter.">Skips</th>
+                    <th data-tooltip="Wie oft ein Gast nach dieser Aufgabe gar nicht mehr weitergemacht hat.">Absprünge</th>
+                    <th data-tooltip="Anteil übersprungen an allen Zuweisungen (Skips ÷ Exposures).">Skip-Quote</th>
+                    <th data-tooltip="Anteil Absprünge an allen Zuweisungen (Absprünge ÷ Exposures) — zum Vergleich mit der Absprung-Rangliste unten.">Absprungrate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in r.worstPlayRate %}
+                    <tr>
+                        <td>{{ row.cat }}</td>
+                        <td title="{{ row.text }}">{{ row.text|length > 90 ? (row.text|slice(0, 90) ~ '…') : row.text }}</td>
+                        <td>{{ row.playedCount }}</td>
+                        <td>{{ row.skippedCount }}</td>
+                        <td>{{ row.abandonedCount }}</td>
+                        <td>{{ (row.skipRate * 100)|round }} %</td>
+                        <td>{{ row.abandonRate is not null ? (row.abandonRate * 100)|round ~ ' %' : '—' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Höchste Absprungrate</h3>
+        <p class="meta" style="margin-top: -0.5rem;">Absprung bedeutet: Der Gast macht nach dieser Aufgabe gar nicht mehr weiter — ein anderes Signal als Skip (Gast macht mit einer anderen Aufgabe weiter). Diese Liste ist eigenständig sortiert und kann andere Aufgaben enthalten als „Häufigste Skips“.</p>
+        <p class="meta" style="margin-top: -0.5rem;">Bekannter struktureller Bias: Die letzte Aufgabe eines Gastes hat immer eine erhöhte Absprungrate, weil die Party schlicht zu Ende ist. Die Absprungrate ist daher ein Vergleichswert zwischen Aufgaben, keine absolute Qualitätsangabe.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kategorie</th>
+                    <th>Aufgabe</th>
+                    <th data-tooltip="Wie oft die Aufgabe tatsächlich fotografiert wurde.">Gespielt</th>
+                    <th data-tooltip="Wie oft die Aufgabe übersprungen wurde — Gast macht mit einer anderen Aufgabe weiter.">Skips</th>
+                    <th data-tooltip="Wie oft ein Gast nach dieser Aufgabe gar nicht mehr weitergemacht hat.">Absprünge</th>
+                    <th data-tooltip="Anteil Absprünge an allen Zuweisungen (Absprünge ÷ Exposures).">Absprungrate</th>
+                    <th data-tooltip="Anteil tatsächlich gespielt an allen Zuweisungen (Gespielt ÷ Exposures) — zum Vergleich mit den anderen Ranglisten.">Play-Quote</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in r.worstAbandonRate %}
+                    <tr>
+                        <td>{{ row.cat }}</td>
+                        <td title="{{ row.text }}">{{ row.text|length > 90 ? (row.text|slice(0, 90) ~ '…') : row.text }}</td>
+                        <td>{{ row.playedCount }}</td>
+                        <td>{{ row.skippedCount }}</td>
+                        <td>{{ row.abandonedCount }}</td>
+                        <td>{{ (row.abandonRate * 100)|round }} %</td>
+                        <td>{{ row.playRate is not null ? (row.playRate * 100)|round ~ ' %' : '—' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Beliebteste Aufgaben</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kategorie</th>
+                    <th>Aufgabe</th>
+                    <th data-tooltip="Wie oft die Aufgabe tatsächlich fotografiert wurde.">Gespielt</th>
+                    <th data-tooltip="Wie oft die Aufgabe übersprungen wurde — Gast macht mit einer anderen Aufgabe weiter.">Skips</th>
+                    <th data-tooltip="Wie oft ein Gast nach dieser Aufgabe gar nicht mehr weitergemacht hat.">Absprünge</th>
+                    <th data-tooltip="Anteil tatsächlich gespielt an allen Zuweisungen (Gespielt ÷ Exposures).">Play-Quote</th>
+                    <th data-tooltip="Anteil Absprünge an allen Zuweisungen (Absprünge ÷ Exposures) — zum Vergleich mit der Absprung-Rangliste oben.">Absprungrate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in r.bestPlayRate %}
+                    <tr>
+                        <td>{{ row.cat }}</td>
+                        <td title="{{ row.text }}">{{ row.text|length > 90 ? (row.text|slice(0, 90) ~ '…') : row.text }}</td>
+                        <td>{{ row.playedCount }}</td>
+                        <td>{{ row.skippedCount }}</td>
+                        <td>{{ row.abandonedCount }}</td>
+                        <td>{{ (row.playRate * 100)|round }} %</td>
+                        <td>{{ row.abandonRate is not null ? (row.abandonRate * 100)|round ~ ' %' : '—' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>

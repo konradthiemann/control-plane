@@ -10,6 +10,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * Reads the aggregated usage analytics Knips (Foto-Challenge) exposes for
  * this backend. See Foto-Challenge/docs/analytics-api.md for the contract.
+ *
+ * fetchAnalytics()'s payload may additionally contain a `taskStats` list
+ * (per-task play/skip/abandon counts and rates) and a top-level
+ * `taskStatsMinExposures` (minimum sample size below which a task's rates
+ * aren't statistically meaningful) — both are consumed by KnipsTaskRanking.
+ * Older Knips deployments may not send these fields yet; treat their
+ * absence as "no data", not an error.
  */
 class KnipsAnalyticsClient
 {
