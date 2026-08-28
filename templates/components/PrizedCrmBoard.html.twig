@@ -28,7 +28,7 @@
                         <td data-label="Letzter Login">{{ user.lastSignInAt ? user.lastSignInAt|date('d.m.Y H:i') : '—' }}</td>
                         <td data-label="Decks">{{ user.deckCount }}</td>
                         <td data-label="Runden">{{ user.roundCount }}</td>
-                        <td data-label="Letzte Runde">{{ user.lastRoundAt ? (user.lastRoundAt / 1000)|date('d.m.Y H:i') : '—' }}</td>
+                        <td data-label="Letzte Runde">{{ user.lastRoundAt ? (user.lastRoundAt // 1000)|date('d.m.Y H:i') : '—' }}</td>
                         <td data-label="Status">
                             {% if user.banned %}
                                 <span class="badge badge-addressing">gesperrt</span>
