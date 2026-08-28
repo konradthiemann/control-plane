@@ -1,0 +1,56 @@
+<div {{ attributes }}>
+    {% if this.lastError %}
+        <div class="alert alert-danger">{{ this.lastError }}</div>
+    {% endif %}
+
+    {% if this.users is empty %}
+        <p class="empty-state">Keine Accounts.</p>
+    {% else %}
+        <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>E-Mail</th>
+                    <th>Registriert</th>
+                    <th data-tooltip="Letzter erfolgreicher Login. Leer, wenn noch nie eingeloggt.">Letzter Login</th>
+                    <th>Decks</th>
+                    <th>Runden</th>
+                    <th data-tooltip="Zeitpunkt der letzten abgeschlossenen Runde — grobe Aktivitäts-Annäherung, kein echtes Funnel-Tracking.">Letzte Runde</th>
+                    <th>Status</th>
+                    <th>Aktion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in this.users %}
+                    <tr>
+                        <td data-label="E-Mail">{{ user.email ?? '—' }}</td>
+                        <td data-label="Registriert">{{ user.createdAt|date('d.m.Y') }}</td>
+                        <td data-label="Letzter Login">{{ user.lastSignInAt ? user.lastSignInAt|date('d.m.Y H:i') : '—' }}</td>
+                        <td data-label="Decks">{{ user.deckCount }}</td>
+                        <td data-label="Runden">{{ user.roundCount }}</td>
+                        <td data-label="Letzte Runde">{{ user.lastRoundAt ? (user.lastRoundAt / 1000)|date('d.m.Y H:i') : '—' }}</td>
+                        <td data-label="Status">
+                            {% if user.banned %}
+                                <span class="badge badge-addressing">gesperrt</span>
+                            {% else %}
+                                <span class="badge badge-new">aktiv</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            {% if user.banned %}
+                                <button {{ live_action('suspendUser', {userId: user.id, suspended: false}) }}>Entsperren</button>
+                            {% else %}
+                                <button {{ live_action('suspendUser', {userId: user.id, suspended: true}) }}>Sperren</button>
+                            {% endif %}
+                            <button
+                                {{ live_action('deleteUser', {userId: user.id}) }}
+                                onclick="if(!confirm('Account „{{ user.email|e('js') }}“ wirklich unwiderruflich löschen?')){event.preventDefault();event.stopImmediatePropagation();}"
+                            >Löschen</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% endif %}
+</div>

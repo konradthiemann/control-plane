@@ -16,7 +16,7 @@ final class AppRegistry
         return [
             new AppEntry('doewe', 'Doewe', 'Doewe', hasDoeweAnalytics: true, hasDoeweCrm: true),
             new AppEntry('pokekon', 'Pokekon', 'Pokekon'),
-            new AppEntry('prized', 'Prized', 'Pok-mon-TCG-Prize-Checker'),
+            new AppEntry('prized', 'Prized', 'Pok-mon-TCG-Prize-Checker', hasPrizedCrm: true, hasPrizedAnalytics: true),
             new AppEntry('knips', 'Knips', 'Foto-Challenge', hasKnipsAnalytics: true),
             new AppEntry('waldbingo', 'Waldbingo', 'Waldbingo'),
             new AppEntry('bilderraetsel', 'Bilderrätsel', 'bilderraetsel'),

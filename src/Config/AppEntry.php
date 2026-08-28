@@ -11,6 +11,8 @@ final class AppEntry
         public readonly bool $hasKnipsAnalytics = false,
         public readonly bool $hasDoeweAnalytics = false,
         public readonly bool $hasDoeweCrm = false,
+        public readonly bool $hasPrizedCrm = false,
+        public readonly bool $hasPrizedAnalytics = false,
     ) {
     }
 }
