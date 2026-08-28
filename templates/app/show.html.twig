@@ -197,6 +197,79 @@
         </div>
     {% endif %}
 
+    {% if appEntry.hasPrizedCrm %}
+        <div class="card">
+            <h2>Kennzahlen</h2>
+
+            {% if prizedStats is null %}
+                <p class="empty-state">Prized aktuell nicht erreichbar.</p>
+            {% else %}
+                <div class="kpi-row">
+                    <div class="kpi-tile">
+                        <div class="value">{{ prizedStats.totalUsers }}</div>
+                        <div class="label">Accounts</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ prizedStats.totalDecks }}</div>
+                        <div class="label">Decks</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ prizedStats.totalRounds }}</div>
+                        <div class="label">Gespielte Runden</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ prizedStats.newUsersLast7d }}</div>
+                        <div class="label">Neu (7 Tage)</div>
+                    </div>
+                    <div class="kpi-tile">
+                        <div class="value">{{ prizedStats.newUsersLast30d }}</div>
+                        <div class="label">Neu (30 Tage)</div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if appEntry.hasPrizedAnalytics %}
+        {% if prizedUsageCharts %}
+            <div class="card">
+                <h2>Nutzung (30 Tage)</h2>
+                <h3>Runden pro Tag</h3>
+                <div class="chart-box chart-box--short">
+                    {{ render_chart(prizedUsageCharts.roundsPlayed) }}
+                </div>
+                <h3>Ø Rundendauer (Sekunden) pro Tag</h3>
+                <div class="chart-box chart-box--short">
+                    {{ render_chart(prizedUsageCharts.avgDurationSec) }}
+                </div>
+                <h3>Aktive Nutzer pro Tag</h3>
+                <div class="chart-box chart-box--short">
+                    {{ render_chart(prizedUsageCharts.activeUsers) }}
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <p class="empty-state">Prized-Nutzungsdaten aktuell nicht erreichbar.</p>
+            </div>
+        {% endif %}
+
+        {% if prizedTopDecksChart %}
+            <div class="card">
+                <h2>Meistgespielte Decks</h2>
+                <div class="chart-box">
+                    {{ render_chart(prizedTopDecksChart) }}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    {% if appEntry.hasPrizedCrm %}
+        <div class="card">
+            <h2>Accounts</h2>
+            {{ component('PrizedCrmBoard') }}
+        </div>
+    {% endif %}
+
     <div class="card">
         <h2>Offene Issues</h2>
         {{ component('IssueBoard', {repoFilter: appEntry.githubRepo}) }}

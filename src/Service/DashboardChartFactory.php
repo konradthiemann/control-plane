@@ -246,6 +246,32 @@ class DashboardChartFactory
     }
 
     /**
+     * Prizeds per-day usage series (roundsPlayed/avgDurationSec/avgAccuracy/
+     * newUsers/activeUsers) — gleiche Wiederverwendung wie doeweUsageChart().
+     *
+     * @param list<array{date: string, roundsPlayed: int, avgDurationSec: float, avgAccuracy: float, newUsers: int, activeUsers: int}> $series
+     */
+    public function prizedUsageChart(array $series, string $key, string $label): Chart
+    {
+        return $this->knipsDailySeriesChart($series, $key, $label);
+    }
+
+    /**
+     * Meistgespielte Decks/Archetypen — gleicher horizontaler Balken-Chart
+     * wie knipsCategoryChart(), nur mit Prizeds Feldnamen (label/roundCount
+     * statt cat/count).
+     *
+     * @param list<array{label: string, roundCount: int, avgAccuracy: float}> $rows
+     */
+    public function prizedTopDecksChart(array $rows): Chart
+    {
+        return $this->knipsCategoryChart(
+            array_map(static fn (array $r) => ['cat' => $r['label'], 'count' => $r['roundCount']], $rows),
+            'Runden',
+        );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function barOptions(bool $horizontal, bool $legend, bool $stacked = false): array

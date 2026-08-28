@@ -7,6 +7,7 @@ use App\Service\DashboardChartFactory;
 use App\Service\DoeweAnalyticsClient;
 use App\Service\KnipsAnalyticsClient;
 use App\Service\KnipsTaskRanking;
+use App\Service\PrizedAnalyticsClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,6 +19,7 @@ class AppController extends AbstractController
         string $slug,
         KnipsAnalyticsClient $knipsAnalyticsClient,
         DoeweAnalyticsClient $doeweAnalyticsClient,
+        PrizedAnalyticsClient $prizedAnalyticsClient,
         DashboardChartFactory $charts,
         KnipsTaskRanking $taskRanking,
     ): Response {
@@ -79,6 +81,30 @@ class AppController extends AbstractController
             }
         }
 
+        $prizedStats = null;
+        if ($appEntry->hasPrizedCrm) {
+            $prizedStats = $prizedAnalyticsClient->fetchStats();
+        }
+
+        $prizedUsage = null;
+        $prizedUsageCharts = null;
+        $prizedTopDecksChart = null;
+        if ($appEntry->hasPrizedAnalytics) {
+            $prizedUsage = $prizedAnalyticsClient->fetchUsage(30);
+            if (null !== $prizedUsage) {
+                $prizedUsageCharts = [
+                    'roundsPlayed' => $charts->prizedUsageChart($prizedUsage, 'roundsPlayed', 'Runden/Tag'),
+                    'avgDurationSec' => $charts->prizedUsageChart($prizedUsage, 'avgDurationSec', 'Ø Dauer (s)/Tag'),
+                    'activeUsers' => $charts->prizedUsageChart($prizedUsage, 'activeUsers', 'Aktive Nutzer/Tag'),
+                ];
+            }
+
+            $prizedDecksSummary = $prizedAnalyticsClient->fetchDecksSummary();
+            if (null !== $prizedDecksSummary) {
+                $prizedTopDecksChart = $charts->prizedTopDecksChart($prizedDecksSummary);
+            }
+        }
+
         return $this->render('app/show.html.twig', [
             'apps' => AppRegistry::all(),
             'appEntry' => $appEntry,
@@ -91,6 +117,9 @@ class AppController extends AbstractController
             'doeweChart' => $doeweChart,
             'doeweUsage' => $doeweUsage,
             'doeweUsageCharts' => $doeweUsageCharts,
+            'prizedStats' => $prizedStats,
+            'prizedUsageCharts' => $prizedUsageCharts,
+            'prizedTopDecksChart' => $prizedTopDecksChart,
         ]);
     }
 }

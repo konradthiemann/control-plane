@@ -17,6 +17,15 @@ class AppRegistryTest extends TestCase
         self::assertTrue($app->hasKnipsAnalytics);
     }
 
+    public function testPrizedHasCrmAndAnalyticsFlags(): void
+    {
+        $app = AppRegistry::findBySlug('prized');
+
+        self::assertNotNull($app);
+        self::assertTrue($app->hasPrizedCrm);
+        self::assertTrue($app->hasPrizedAnalytics);
+    }
+
     public function testFindBySlugReturnsNullForUnknownSlug(): void
     {
         self::assertNull(AppRegistry::findBySlug('does-not-exist'));
